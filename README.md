@@ -13,3 +13,4 @@ programming:
 3.  open VS project Arduino_Canbus_Monitor/ArduinoCanbusMonitor/CS_code/ArduinoCanbusMonitor.sln
 4.  hit CTRL/F5 to compile, build and run 
 
+![Canbsu monitor](ArduinoCanbusMinitor.jpg)
