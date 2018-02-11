@@ -15,7 +15,7 @@ programming:
 
 ![Canbsu monitor](ArduinoCanbusMinitor.jpg)
 
-note that this code requires an updated version of the following function 
+note that this code requires an updated version of the following function which fixes problems with the values of id and rtrBit being returned incorrectly
 ```
 /*********************************************************************************************************
 ** Function name:           mcp2515_read_canMsg
