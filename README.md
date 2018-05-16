@@ -8,11 +8,8 @@ hardware
 2.  Seeed CAN-BUS Shield V1.2 
 
 programming:
-1. program the Arduino using the file Arduino_Canbus_Monitor/ArduinoCanbusMonitor/ArduinoCanbusCode/ArduinoCanbusCode.ino
-   (a) Run the Serial Monitor is should display 
-          Canbus monitor
-          CAN BUS Shield init ok!
-   (b) close the Serial Monitor
+1. (a) program the Arduino using the file Arduino_Canbus_Monitor/ArduinoCanbusMonitor/ArduinoCanbusCode/ArduinoCanbusCode.ino 
+   (b) Run the Serial Monitor is should display Canbus monitor CAN BUS Shield init ok! (c) close the Serial Monitor
 2.  Instal Vistal Studio 2017 or later
 3.  open VS project Arduino_Canbus_Monitor/ArduinoCanbusMonitor/CS_code/ArduinoCanbusMonitor.sln
 4.  hit CTRL/F5 to compile, build and run 
