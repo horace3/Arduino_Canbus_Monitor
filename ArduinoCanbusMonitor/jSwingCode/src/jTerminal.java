@@ -48,7 +48,7 @@ public class jTerminal extends javax.swing.JFrame {
             {port=0; openCOMport();}
        else
            TerminalTextArea.append("\nUse COM port menu to select serial port\n");
-        {port=1; openCOMport();}
+        //{port=1; openCOMport();}
     }
     
     // attempt to open COM port - if OK add data listener
