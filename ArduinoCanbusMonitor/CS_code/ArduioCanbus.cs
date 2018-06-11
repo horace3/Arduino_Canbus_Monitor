@@ -9,11 +9,10 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.IO.Ports;
 
-using PIC24mechatronicsCsharp;
 
-namespace USB_PIC24_MECHATRONICS_DATA_DLL
+namespace Arduino_Canbus
 {
-    internal class PIC24_mechatronics
+    internal class Arduino_Canbus_interface
     { 
          /* CANBUS functions */
 

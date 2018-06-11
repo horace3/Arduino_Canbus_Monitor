@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace PIC24mechatronicsCsharp
+namespace Arduino_Canbus
 {
     static class Program
     {

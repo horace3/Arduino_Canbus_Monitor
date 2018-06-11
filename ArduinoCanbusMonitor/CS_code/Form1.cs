@@ -1,10 +1,9 @@
-﻿// C# test program for Bytronic PIC24F board using a background worker
-//
-// this is not thread safe 
-// - the background worker communicates directly with the GUI components
-//   it should use a delegate
-//   e.g. try running using debugger - it will trow an exception!
-// use the version using a timer instead
+﻿// C# Canbus Monitor host communicating over serial line to Arduino target with Canbus shield
+
+// March 2018 - adapted from code communicating with a PIC24 via USB
+// 22/5/2018 -  fixed problems with other threads communicating directly with GUI components
+// 22/5/2018 -  if communication with Arduino fails added loop to attempt communication again 
+
 
 using System;
 using System.Collections.Generic;
@@ -15,10 +14,10 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading;
-using USB_PIC24_MECHATRONICS_DATA_DLL;
+//using Arduino_Canbus_interface;
 using System.IO.Ports;
 
-namespace PIC24mechatronicsCsharp
+namespace Arduino_Canbus
 {
     public partial class Form1 : Form
     {
@@ -46,71 +45,56 @@ namespace PIC24mechatronicsCsharp
  
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
 
-        }
-
-
-        // thread handling communication with the mechatronics board
+        // thread opening serial port communication with the Arduino board
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
-              Console.WriteLine("background worker ");
-            running = true;
-            setCANBUSparameters = true;
-            // Get a list of serial port names.
-            // Get a list of serial port names.
-            string[] ports = SerialPort.GetPortNames();
-
-           // terminalTextBox.AppendText("The following serial ports were found:" + Environment.NewLine);
-             terminalTextBox.Invoke(this.myDelegate, new Object[] { "The following serial ports were found:" });
-
-            // Display each port name to the console. and send > to prompt for response
-            foreach (string port in ports)
+          Console.WriteLine("background worker ");
+            while (true)
             {
-                try
+                // Get a list of serial port names.
+                string[] ports = SerialPort.GetPortNames();
+                // terminalTextBox.AppendText("The following serial ports were found:" + Environment.NewLine);
+                terminalTextBox.Invoke(this.myDelegate, new Object[] { "The following serial ports were found:" });
+                // Display each port name to the console. and send > to prompt for response
+                foreach (string port in ports)
                 {
-                    terminalTextBox.Invoke(this.myDelegate, "attempting to open " + port + Environment.NewLine);
-                    //terminalTextBox.Invoke(this.myDelegate, new Object[] { "  " + port });
-                    serialPort1.PortName = port;
-                    serialPort1.Open();
+                    try
+                    {
+                        terminalTextBox.Invoke(this.myDelegate, "attempting to open " + port);
+                        //terminalTextBox.Invoke(this.myDelegate, new Object[] { "  " + port });
+                        serialPort1.PortName = port;
+                        serialPort1.Open();
+                    }
+                    catch (Exception e1)
+                    {
+                        terminalTextBox.Invoke(this.myDelegate, "port open failed ");
+                    }
+                    if (serialPort1.IsOpen)
+                    {
+                        serialPort1.Write(">");         // prompt Arduino to respond 
+                        Thread.Sleep(2000);             // wait for serial commincations
+                        if (canbusMonitorFound) break;  // found? if so exit foreach()
+                        serialPort1.Close();
+                    }
+                    terminalTextBox.Invoke(this.myDelegate, "communication failed ");
+                    Thread.Sleep(100);
                 }
-                catch (Exception e1)
+                if (serialPort1.IsOpen)   // if communicating with Arduino close backgroundWorker
                 {
+                    canbusReceivedMessageTextBox.Invoke(this.myDelegate, ">"+Environment.NewLine + "Communication to Arduino OK");
+                    CANBUStransmitSetup();
+                    return;
                 }
-                if (serialPort1.IsOpen)
+                else
                 {
-                    serialPort1.Write(">");
-                    Thread.Sleep(1000);
-                    if (canbusMonitorFound) break;
-                    serialPort1.Close();
+                    canbusReceivedMessageTextBox.Invoke(this.myDelegate, ">Communication to Arduino failed! " + Environment.NewLine
+                                                                  + "   is it connected?");
                 }
-                terminalTextBox.Invoke(this.myDelegate, "communication failed " + Environment.NewLine);
-                Thread.Sleep(1000);
+                Thread.Sleep(5000);
+                terminalTextBox.Invoke(this.myDelegate, Environment.NewLine + "attempting communication again!");
+                canbusReceivedMessageTextBox.Invoke(this.myDelegate, ">"+Environment.NewLine + "attempting communication again!");
             }
-            if (serialPort1.IsOpen) terminalTextBox.Invoke(this.myDelegate, "serial port open OK" + Environment.NewLine);
-            else
-            {
-                terminalTextBox.Invoke(this.myDelegate, "Communication to Arduino failed! is it connected?" + Environment.NewLine);
-                canbusReceivedMessageTextBox.Invoke(this.myDelegate, ">Communication to Arduino failed! " + Environment.NewLine
-                                                              + "   is it connected?" + Environment.NewLine);
-            }
-            while (running)
-            {
-                 {
-                    Text = "Canbus monitor";      // display connected message
-                    if (setCANBUSparameters)  CANBUStransmitSetup() ;           // transmit CANBUS data to board?                                                                            //Console.WriteLine("status {0}", status);
-                    toolStripStatusLabel1.Text = "Canbus monitor";
-                   //Console.WriteLine("transmitCANBUSmessage {0}", transmitCANBUSmessage);
-                    if (transmitCANBUSmessage) CANBUStransmitMessageNow();
-                 }
-            //    Invalidate();                               // force redraw of graphics to display any drawing etc
-              //  Update();
-             //   Thread.Sleep(100);
-            }
-            // running has been set to false, send RESET to board and then close the Form
-            Console.WriteLine("background worker exit ");
-            Close();
         }
 
         // Form is closing, if background working is running stop it and call close again
@@ -128,10 +112,17 @@ namespace PIC24mechatronicsCsharp
 
         private void serialPort1_DataReceived(object sender, System.IO.Ports.SerialDataReceivedEventArgs e)
         {
-            //textBox1.AppendText(serialPort1.ReadExisting());  // not thread safe
-            serialData = serialPort1.ReadLine();// Existing();
-            terminalTextBox.Invoke(this.myDelegate, new Object[] { serialData });
-            if (serialData.Contains("Canbus monitor")) canbusMonitorFound = true;
+            try
+            {
+                //textBox1.AppendText(serialPort1.ReadExisting());  // direct GUI communication is not thread safe
+                serialData = serialPort1.ReadLine();                // use degegate
+                terminalTextBox.Invoke(this.myDelegate, new Object[] { serialData });
+                if (serialData.Contains("Canbus monitor")) canbusMonitorFound = true;  // Arduino responded OK?
+            }
+            catch (Exception e1)
+            {
+                terminalTextBox.Invoke(this.myDelegate, "Error! " + e1);
+            }
         }
 
         // display seral data on textbox
@@ -143,17 +134,10 @@ namespace PIC24mechatronicsCsharp
         }
 
  
-        // Form has been invalidated - repaint it
-        private void Form1_Paint(object sender, PaintEventArgs e)
-        {
-		    Graphics g = e.Graphics;								        // get graphics context
-		    g.Clear(Color.White);									        // clear the background to White
-        }
-
- 
         private void transmitButton_Click(object sender, EventArgs e)
         {
-            transmitCANBUSmessage = true;
+            //transmitCANBUSmessage = true;
+            CANBUStransmitMessageNow();
         }
 
         private void canbisMessageTextBox_TextChanged(object sender, EventArgs e)
@@ -246,16 +230,17 @@ namespace PIC24mechatronicsCsharp
         read29bitHexNumber(canbusIDtextBox, ref canbusTranmitID);       // get the can ID
         if (RTRcheckBox.Checked) RTR = 1; else RTR = 0;
         if (extended29bitIDcheckBox.Checked) extendedID = 1; else extendedID = 0;
-        PIC24_mechatronics.CANBUStransmit(serialPort1, extendedID, canbusTranmitID, RTR, message);                // transmit message
+        Arduino_Canbus_interface.CANBUStransmit(serialPort1, extendedID, canbusTranmitID, RTR, message);                // transmit message
     }
 
  
     private void setCanbus_Click(object sender, EventArgs e)
     {
-        setCANBUSparameters = true;
+       // setCANBUSparameters = true;
+       CANBUStransmitSetup();
     }
 
-    private void CANBUStransmitSetup()
+     private void CANBUStransmitSetup()
      {
         setCANBUSparameters = false;
         if (button125.Checked)   CANBUSspeed = 125;          // setup canbus speed 
@@ -264,8 +249,7 @@ namespace PIC24mechatronicsCsharp
         if (RFX0checkBox.Checked) Rx0extended = 1; else Rx0extended = 0;
         if (RFX1checkBox.Checked) Rx1extended = 1; else Rx1extended = 0;
         //Console.WriteLine("CANBUStransmitSetup filter {0:X} mask {1:X} speed {2}", canbusMask, canbusFilter, CANBUSspeed);
-        PIC24_mechatronics.CANBUSsetup(serialPort1, Rx0extended, Rx0mask, Rx0filter, Rx1extended, Rx1mask, Rx1filter, CANBUSspeed);
-            //canbusMask, canbusFilter, CANBUSspeed);
+        Arduino_Canbus_interface.CANBUSsetup(serialPort1, Rx0extended, Rx0mask, Rx0filter, Rx1extended, Rx1mask, Rx1filter, CANBUSspeed);
      }
 
  
