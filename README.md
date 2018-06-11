@@ -1,7 +1,8 @@
 # Arduino_Canbus_Monitor
-a C# program which uses an arduino+canbus shield to Monitor Canbus traffic
+C# and Java programs which use an arduino+canbus shield to Monitor Canbus traffic
 # Arduino_Canbus_Monitor
 a C# program which uses an arduino+canbus shield to Monitor Canbus traffic
+a Java program which uses an arduino+canbus shield to Monitor Canbus traffic
 
 hardware
 1.  Arduino Uno, Mega or similar
@@ -15,7 +16,13 @@ programming:
 5.  open VS project Arduino_Canbus_Monitor/ArduinoCanbusMonitor/CS_code/ArduinoCanbusMonitor.sln
 6.  hit CTRL/F5 to compile, build and run 
 
-![Canbsu monitor](ArduinoCanbusMinitor.jpg)
+![C# Canbus monitor](ArduinoCanbusMinitor.jpg)
+
+7. Instal NetBeans and run (under Ubuntu use sudo to enable access to serial port)
+8. Open the project ArduinoCanbusMonitor/jSwingCode
+9. Build and run the project 
+
+![Java Canbus monitor](Linux_Java.jpg)
 
 note that this code requires an updated version of the following function which fixes problems with the values of id and rtrBit being returned incorrectly
 ```
