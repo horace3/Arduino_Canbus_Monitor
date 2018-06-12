@@ -18,8 +18,7 @@ programming:
 
 ![C# Canbus monitor](ArduinoCanbusMinitor.jpg)
 
-Java PC program (Windows, Linux, etc)
-7. Instal NetBeans and run (under Ubuntu use sudo to enable access to serial port)
+7. Build Java PC program (Windows, Linux, etc) - Instal NetBeans and run (under Ubuntu use sudo to enable access to serial port)
 8. Open the project ArduinoCanbusMonitor/jSwingCode
 9. Build and run the project 
 
