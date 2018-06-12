@@ -12,9 +12,7 @@ programming:
 1. program the Arduino using the file Arduino_Canbus_Monitor/ArduinoCanbusMonitor/ArduinoCanbusCode/ArduinoCanbusCode.ino 
 2. Run the Serial Monitor at 115200 baud, it should display *Canbus monitor* then *CAN BUS Shield init ok!*
 3. close the Serial Monitor
-
-C# PC program
-4.  Instal Vistal Studio 2017 or later
+4.  Build C# program - Instal Vistal Studio 2017 or later
 5.  open VS project Arduino_Canbus_Monitor/ArduinoCanbusMonitor/CS_code/ArduinoCanbusMonitor.sln
 6.  hit CTRL/F5 to compile, build and run 
 
