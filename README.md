@@ -1,7 +1,7 @@
 # Arduino_Canbus_Monitor
 C# and Java programs which use an arduino+canbus shield to Monitor Canbus traffic
 # Arduino_Canbus_Monitor
-a C# program which uses an arduino+canbus shield to Monitor Canbus traffic
+a C# and Java programs which uses an arduino+canbus shield to Monitor Canbus traffic
 a Java program which uses an arduino+canbus shield to Monitor Canbus traffic
 
 hardware
@@ -12,12 +12,15 @@ programming:
 1. program the Arduino using the file Arduino_Canbus_Monitor/ArduinoCanbusMonitor/ArduinoCanbusCode/ArduinoCanbusCode.ino 
 2. Run the Serial Monitor at 115200 baud, it should display *Canbus monitor* then *CAN BUS Shield init ok!*
 3. close the Serial Monitor
+
+C# PC program
 4.  Instal Vistal Studio 2017 or later
 5.  open VS project Arduino_Canbus_Monitor/ArduinoCanbusMonitor/CS_code/ArduinoCanbusMonitor.sln
 6.  hit CTRL/F5 to compile, build and run 
 
 ![C# Canbus monitor](ArduinoCanbusMinitor.jpg)
 
+Java PC program (Windows, Linux, etc)
 7. Instal NetBeans and run (under Ubuntu use sudo to enable access to serial port)
 8. Open the project ArduinoCanbusMonitor/jSwingCode
 9. Build and run the project 
